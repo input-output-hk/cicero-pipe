@@ -2,7 +2,9 @@
 Creates Cicero facts from whitespace-separated JSON on stdin
   
 To include an artifact, send a `!` before the JSON and send `NN:Bs` afterward,
-where `NN` matches attoparsec's `decimal @Int` parser, and `Bs` is `NN` raw bytes
+where `NN` matches attoparsec's `decimal @Int` parser, and `Bs` is `NN` raw bytes.
+
+The resulting fact UUIDs will be emitted on `stdout`
 
 ```
 Usage: cicero-pipe [--cicero-url CICERO_URL] [--user USER --password PASS]

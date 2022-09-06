@@ -76,7 +76,12 @@ argsInfo envUsername envPassword = info (argsParser envUsername envPassword <**>
  <> (progDescDoc . Just $ vcat
    [ "Creates Cicero facts from whitespace-separated JSON on stdin"
    , Pretty.empty
-   , ("To include an artifact," </> "send a '!' before the JSON and send \"NN:Bs\" afterward," </> "where NN matches attoparsec's `decimal @Int` parser, and Bs is NN raw bytes")
+   , (  "To include an artifact,"
+    </> "send a '!' before the JSON and send \"NN:Bs\" afterward,"
+    </> "where NN matches attoparsec's `decimal @Int` parser, and Bs is NN raw bytes."
+     )
+   , Pretty.empty
+   , "The resulting fact UUIDs will be emitted on `stdout`"
    ])
   )
 
@@ -149,9 +154,9 @@ parseFacts inH post = go initState
 postFact :: ClientEnv -> CreateFactV1 -> IO ()
 postFact cEnv cf = runClientM (createFact cf) cEnv >>= \case
     Left e -> throw e
-    Right res ->
-      -- TODO better logging
-      hPutStrLn stderr $ "Created new fact: " ++ show res.id.uuid
+    Right res -> do
+      hPutStrLn stdout $ show res.id.uuid
+      hFlush stdout
   where
     createFact = (client $ Proxy @API).fact.create
 

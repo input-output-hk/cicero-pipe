@@ -11,7 +11,7 @@
     flags = {};
     package = {
       specVersion = "3.4";
-      identifier = { name = "cicero-pipe"; version = "1.0.1"; };
+      identifier = { name = "cicero-pipe"; version = "1.1.0"; };
       license = "Apache-2.0";
       copyright = "";
       maintainer = "shea.levy@iohk.io";
