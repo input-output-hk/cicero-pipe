@@ -9,6 +9,8 @@ import Options.Applicative.Help.Pretty
 import Servant.API.BasicAuth
 import Servant.Client.Core.BaseUrl
 
+import Parse
+
 type EnvUsername = String
 type EnvPassword = String
 
@@ -16,6 +18,7 @@ data Args = Args
   { ciceroURL :: !BaseUrl
   , ciceroAuth :: !(Maybe BasicAuthData)
   , runId :: !(Maybe RunID)
+  , allowArtifacts :: !AllowArtifacts
   , debug :: !Bool
   }
 
@@ -58,6 +61,10 @@ argsParser envUsername envPassword = Args
        <> metavar "RUN_ID"
        <> help "the ID of the run to associate the facts with"
         ))
+  <*> flag YesArtifacts NoArtifacts
+        ( long "disable-artifacts"
+       <> help "Prevent artifacts from being posted"
+        )
   <*> flag False True
         ( long "debug-mode"
        <> help "Print results to stderr instead of posting to Cicero"

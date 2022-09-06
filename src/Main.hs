@@ -36,4 +36,5 @@ main = do
       pure $ realPostFact cEnv' args.runId
 
   let bufsiz = 2048 -- Why not
-  parseFacts $ ParseFacts (hGetSome stdin bufsiz) (postFact pf)
+  parseFacts args.allowArtifacts $
+    ParseFacts (hGetSome stdin bufsiz) (postFact pf)

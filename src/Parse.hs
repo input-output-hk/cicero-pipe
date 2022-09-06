@@ -18,6 +18,11 @@ data ParseException = ParseException
 
 instance Exception ParseException
 
+-- | Config flag determining if artifacts are allowed in facts.
+data AllowArtifacts
+  = YesArtifacts
+  | NoArtifacts
+
 -- | Parse a fact with an optional artifact.
 --
 -- Yields 'Nothing' if EOF is reached after only
@@ -29,15 +34,17 @@ instance Exception ParseException
 -- Parses '!' followed by a JSON value followed by
 -- NN:Bs where NN matches 'decimal' @'Int' and Bs
 -- is NN bytes as a fact with an artifact.
-createFactParser :: Parser (Maybe CreateFactV1)
-createFactParser = do
-  skipSpace
+createFactParser :: AllowArtifacts -> Parser (Maybe CreateFactV1)
+createFactParser allowArts = do
+    skipSpace
 
-  eof <- atEnd
+    eof <- atEnd
 
-  case eof of
-    True -> pure Nothing
-    False -> Just <$> do
+    case eof of
+      True -> pure Nothing
+      False -> Just <$> parseReal allowArts
+  where
+    parseReal YesArtifacts = do
       hasArtifact <- option False $
         char '!' *> pure True
 
@@ -54,6 +61,9 @@ createFactParser = do
             (take byteCount <?> "artifact content")
 
       pure $ CreateFact v art
+    parseReal NoArtifacts = do
+      v <- jsonNoDup' <?> "fact JSON"
+      pure $ CreateFact v Nothing
 
 -- | Capablities needed to 'parseFacts'
 data ParseFacts m = ParseFacts
@@ -66,10 +76,10 @@ data ParseFacts m = ParseFacts
   }
 
 -- | Parse facts from input and pass on to continuation
-parseFacts :: (MonadThrow m) => ParseFacts m -> m ()
-parseFacts ParseFacts {..} = go initState
+parseFacts :: (MonadThrow m) => AllowArtifacts -> ParseFacts m -> m ()
+parseFacts allowArts ParseFacts {..} = go initState
   where
-    startParse = parse createFactParser
+    startParse = parse (createFactParser allowArts)
 
     initState = Partial startParse
 
