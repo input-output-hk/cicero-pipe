@@ -21,17 +21,19 @@ main = do
   envPassword <- lookupEnv "CICERO_PASS"
   args <- execParser $ argsInfo envUsername envPassword
 
-  -- Set up plumbing for poster
-  manager <- newTlsManagerWith $
-    tlsManagerSettings { managerResponseTimeout = responseTimeoutNone }
-  let
-    cEnv = mkClientEnv manager args.ciceroURL
-    cEnv' = case args.ciceroAuth of
-      Nothing -> cEnv
-      Just ba -> cEnv
-        { makeClientRequest = \u -> defaultMakeClientRequest u . basicAuthReq ba
-        }
-    pf = realPostFact cEnv'
+  pf <- case args.debug of
+    True -> pure debugPostFact
+    False -> do
+      manager <- newTlsManagerWith $
+        tlsManagerSettings { managerResponseTimeout = responseTimeoutNone }
+      let
+        cEnv = mkClientEnv manager args.ciceroURL
+        cEnv' = case args.ciceroAuth of
+          Nothing -> cEnv
+          Just ba -> cEnv
+            { makeClientRequest = \u -> defaultMakeClientRequest u . basicAuthReq ba
+            }
+      pure $ realPostFact cEnv'
 
   let bufsiz = 2048 -- Why not
   parseFacts $ ParseFacts (hGetSome stdin bufsiz) (postFact pf)

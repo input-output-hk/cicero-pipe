@@ -14,6 +14,7 @@ type EnvPassword = String
 data Args = Args
   { ciceroURL :: !BaseUrl
   , ciceroAuth :: !(Maybe BasicAuthData)
+  , debug :: !Bool
   }
 
 baseUrlReader :: ReadM BaseUrl
@@ -50,6 +51,10 @@ argsParser envUsername envPassword = Args
        <> (value $ BaseUrl Http "localhost" 8080 "")
         )
   <*> optional (basicAuthParser envUsername envPassword)
+  <*> flag False True
+        ( long "debug-mode"
+       <> help "Print results to stderr instead of posting to Cicero"
+        )
 
 argsInfo :: Maybe EnvUsername -> Maybe EnvPassword -> ParserInfo Args
 argsInfo envUsername envPassword = info (argsParser envUsername envPassword <**> helper)

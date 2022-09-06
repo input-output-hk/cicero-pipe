@@ -6,6 +6,8 @@ module Post where
 
 import Control.Monad.Catch
 import Data.Proxy
+import Data.Time.LocalTime
+import Data.UUID.V4
 import IOHK.Cicero.API
 import IOHK.Cicero.API.Fact hiding (API)
 import Servant.Client
@@ -33,6 +35,30 @@ realPostFact cEnv = PostFact
     }
   where
     createFact = (client $ Proxy @API).fact.create
+
+-- If we have proper logging this should probably just be noopPostFact
+-- | 'PostFact' printing to stderr.
+debugPostFact :: PostFact IO
+debugPostFact = PostFact
+  { post = \cf -> do
+      putStr "Fact: "
+      print cf.fact
+      case cf.artifact of
+        Nothing -> putStrLn "No artifact"
+        Just art -> do
+          putStr "Artifact: "
+          print art
+      fid <- FactID <$> nextRandom
+      now <- getZonedTime
+      pure . Right $ Fact
+        { id = fid
+        , runId = Nothing
+        , createdAt = now
+        , value = cf.fact
+        , binaryHash = Nothing -- Not right, oh well
+        }
+  , report = stdoutReport
+  }
 
 -- | Post a fact to Cicero
 postFact :: (MonadThrow m) => PostFact m -> CreateFactV1 -> m ()
