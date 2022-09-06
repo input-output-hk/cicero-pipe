@@ -6,8 +6,6 @@
 {-# LANGUAGE TypeApplications    #-}
 module Main where
 
-import Control.Concurrent.Async
-import Control.Concurrent.Chan
 import Control.Exception
 import Data.Aeson.Parser hiding (value)
 import Data.Attoparsec.ByteString hiding (option)
@@ -125,9 +123,9 @@ createFactParser = do
 
       pure $ CreateFact v art
 
--- | Parse facts from stdin
-parseFacts :: Handle -> Chan (Maybe CreateFactV1) -> IO ()
-parseFacts inH chan = go initState
+-- | Parse facts from stdin and pass on to continuation
+parseFacts :: Handle -> (CreateFactV1 -> IO ()) -> IO ()
+parseFacts inH post = go initState
   where
     bufsiz = 2048 -- Why not
 
@@ -137,32 +135,25 @@ parseFacts inH chan = go initState
 
     go (Fail l ctx err) =
       throwIO $ ParseException l ctx err
-    go (Done l res) = do
-      writeChan chan res
-      case res of
-        Nothing -> pure ()
-        Just _ -> go $ case BS.null l of
-          True -> initState
-          False -> startParse l
+    go (Done _ Nothing) = pure ()
+    go (Done l (Just cf)) = do
+      post cf
+      go $ case BS.null l of
+        True -> initState
+        False -> startParse l
     go (Partial k) = do
       bs <- hGetSome inH bufsiz
       go $ k bs
 
--- | Post facts from input channel to Cicero
-postFacts :: Chan (Maybe CreateFactV1) -> ClientEnv -> IO ()
-postFacts chan cEnv = go
+-- | Post a fact to Cicero
+postFact :: ClientEnv -> CreateFactV1 -> IO ()
+postFact cEnv cf = runClientM (createFact cf) cEnv >>= \case
+    Left e -> throw e
+    Right res ->
+      -- TODO better logging
+      hPutStrLn stderr $ "Created new fact: " ++ show res.id.uuid
   where
     createFact = (client $ Proxy @API).fact.create
-
-    go = readChan chan >>= \case
-      Nothing -> pure ()
-      Just cf ->
-        runClientM (createFact cf) cEnv >>= \case
-          Left e -> throw e
-          Right res -> do
-            -- TODO better logging
-            hPutStrLn stderr $ "Created new fact: " ++ show res.id.uuid
-            go
 
 main :: IO ()
 main = do
@@ -185,6 +176,4 @@ main = do
         { makeClientRequest = \u -> defaultMakeClientRequest u . basicAuthReq ba
         }
 
-  -- Pipe parse results into poster
-  chan <- newChan
-  concurrently_ (parseFacts inH chan) (postFacts chan cEnv')
+  parseFacts inH (postFact cEnv')
