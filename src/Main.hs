@@ -127,26 +127,26 @@ createFactParser = do
 
 -- | Parse facts from stdin
 parseFacts :: Handle -> Chan (Maybe CreateFactV1) -> IO ()
-parseFacts inH chan = go Nothing
+parseFacts inH chan = go initState
   where
     bufsiz = 2048 -- Why not
 
-    startParse = Just . parse createFactParser
+    startParse = parse createFactParser
 
-    go (Just (Fail l ctx err)) =
+    initState = Partial startParse
+
+    go (Fail l ctx err) =
       throwIO $ ParseException l ctx err
-    go (Just (Done l res)) = do
+    go (Done l res) = do
       writeChan chan res
       case res of
         Nothing -> pure ()
         Just _ -> go $ case BS.null l of
-          True -> Nothing
+          True -> initState
           False -> startParse l
-    go st = do
+    go (Partial k) = do
       bs <- hGetSome inH bufsiz
-      case st of
-        Nothing -> go $ startParse bs
-        Just st' -> go . Just $ feed st' bs
+      go $ k bs
 
 -- | Post facts from input channel to Cicero
 postFacts :: Chan (Maybe CreateFactV1) -> ClientEnv -> IO ()
