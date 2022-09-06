@@ -18,6 +18,7 @@ source-repository head
 
 executable cicero-pipe
     main-is: Main.hs
+    other-modules: Args
     build-depends:
       base ^>= 4.16.3.0,
       aeson ^>= 2.0.3.0,

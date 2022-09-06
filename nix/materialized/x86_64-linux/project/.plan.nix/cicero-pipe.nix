@@ -47,6 +47,7 @@
             (hsPkgs."servant-client-core" or (errorHandler.buildDepError "servant-client-core"))
             ];
           buildable = true;
+          modules = [ "Args" ];
           hsSourceDirs = [ "src" ];
           mainPath = [ "Main.hs" ];
           };
