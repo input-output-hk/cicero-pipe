@@ -48,7 +48,7 @@
             (hsPkgs."servant-client-core" or (errorHandler.buildDepError "servant-client-core"))
             ];
           buildable = true;
-          modules = [ "Args" "Parse" ];
+          modules = [ "Args" "Parse" "Post" ];
           hsSourceDirs = [ "src" ];
           mainPath = [ "Main.hs" ];
           };
