@@ -3,6 +3,7 @@ module Args where
 
 import Control.Exception
 import Data.String
+import IOHK.Cicero.API.Run
 import Options.Applicative hiding (empty)
 import Options.Applicative.Help.Pretty
 import Servant.API.BasicAuth
@@ -14,6 +15,7 @@ type EnvPassword = String
 data Args = Args
   { ciceroURL :: !BaseUrl
   , ciceroAuth :: !(Maybe BasicAuthData)
+  , runId :: !(Maybe RunID)
   , debug :: !Bool
   }
 
@@ -51,6 +53,11 @@ argsParser envUsername envPassword = Args
        <> (value $ BaseUrl Http "localhost" 8080 "")
         )
   <*> optional (basicAuthParser envUsername envPassword)
+  <*> optional (option (maybeReader runIdFromString)
+        ( long "run-id"
+       <> metavar "RUN_ID"
+       <> help "the ID of the run to associate the facts with"
+        ))
   <*> flag False True
         ( long "debug-mode"
        <> help "Print results to stderr instead of posting to Cicero"

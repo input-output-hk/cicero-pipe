@@ -33,7 +33,7 @@ main = do
           Just ba -> cEnv
             { makeClientRequest = \u -> defaultMakeClientRequest u . basicAuthReq ba
             }
-      pure $ realPostFact cEnv'
+      pure $ realPostFact cEnv' args.runId
 
   let bufsiz = 2048 -- Why not
   parseFacts $ ParseFacts (hGetSome stdin bufsiz) (postFact pf)

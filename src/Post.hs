@@ -10,6 +10,7 @@ import Data.Time.LocalTime
 import Data.UUID.V4
 import IOHK.Cicero.API
 import IOHK.Cicero.API.Fact hiding (API)
+import IOHK.Cicero.API.Run hiding (API)
 import Servant.Client
 import System.IO
 
@@ -28,13 +29,16 @@ stdoutReport i = do
   hFlush stdout
 
 -- | 'PostFact' sending to the Cicero API
-realPostFact :: ClientEnv -> PostFact IO
-realPostFact cEnv = PostFact
+realPostFact :: ClientEnv -> Maybe RunID -> PostFact IO
+realPostFact cEnv rid = PostFact
     { post = flip runClientM cEnv . createFact
     , report = stdoutReport
     }
   where
-    createFact = (client $ Proxy @API).fact.create
+    c = client $ Proxy @API
+    createFact
+      | Just rid' <- rid = c.run.createFact rid'
+      | otherwise = c.fact.create
 
 -- If we have proper logging this should probably just be noopPostFact
 -- | 'PostFact' printing to stderr.
