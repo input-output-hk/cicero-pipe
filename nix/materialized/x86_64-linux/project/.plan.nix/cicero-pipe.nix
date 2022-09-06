@@ -39,6 +39,7 @@
             (hsPkgs."attoparsec" or (errorHandler.buildDepError "attoparsec"))
             (hsPkgs."bytestring" or (errorHandler.buildDepError "bytestring"))
             (hsPkgs."cicero-api" or (errorHandler.buildDepError "cicero-api"))
+            (hsPkgs."exceptions" or (errorHandler.buildDepError "exceptions"))
             (hsPkgs."http-client" or (errorHandler.buildDepError "http-client"))
             (hsPkgs."http-client-tls" or (errorHandler.buildDepError "http-client-tls"))
             (hsPkgs."optparse-applicative" or (errorHandler.buildDepError "optparse-applicative"))
@@ -47,7 +48,7 @@
             (hsPkgs."servant-client-core" or (errorHandler.buildDepError "servant-client-core"))
             ];
           buildable = true;
-          modules = [ "Args" ];
+          modules = [ "Args" "Parse" ];
           hsSourceDirs = [ "src" ];
           mainPath = [ "Main.hs" ];
           };

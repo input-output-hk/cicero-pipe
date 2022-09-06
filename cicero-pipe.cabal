@@ -18,13 +18,14 @@ source-repository head
 
 executable cicero-pipe
     main-is: Main.hs
-    other-modules: Args
+    other-modules: Args, Parse
     build-depends:
       base ^>= 4.16.3.0,
       aeson ^>= 2.0.3.0,
       attoparsec ^>= 0.14.4,
       bytestring ^>= 0.11.3.1,
       cicero-api ^>= 0.1.0.0,
+      exceptions ^>= 0.10.4,
       http-client ^>= 0.7.13.1,
       http-client-tls ^>= 0.3.6.1,
       optparse-applicative ^>= 0.17.0.0,
