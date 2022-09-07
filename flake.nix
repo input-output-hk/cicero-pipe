@@ -71,12 +71,14 @@
       evalPkgs = pkgs;
 
       flake = project.flake {};
-    in flake // {
+    in flake // rec {
+      defaultPackage = packages.default;
+
       packages = flake.packages // {
         default = flake.packages."cicero-pipe:exe:cicero-pipe";
       };
 
-      defaultApp = flake.apps."cicero-pipe:exe:cicero-pipe";
+      defaultApp = apps.default;
 
       apps = flake.apps // {
         default = flake.apps."cicero-pipe:exe:cicero-pipe";
