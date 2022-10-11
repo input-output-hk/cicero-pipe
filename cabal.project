@@ -1,4 +1,4 @@
-index-state: 2022-09-05T00:00:00Z
+index-state: 2022-10-11T00:00:00Z
 packages: .
 
 package cicero-pipe
@@ -7,10 +7,3 @@ package cicero-pipe
 write-ghc-environment-files: never
 tests: true
 test-show-details: streaming
-
-source-repository-package
-  type: git
-  location: https://github.com/input-output-hk/cicero
-  tag: c2634107fdbfd1c1184e49fd73a2cdca55c8b172
-  --sha256: 0azw3p47b65pn1s60k3dsvjxdqv483khyglwnhv3h8qyd3w9xp78
-  subdir: cicero-api

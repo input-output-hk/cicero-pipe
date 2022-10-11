@@ -2,21 +2,16 @@
 module Args where
 
 import Control.Exception
-import Data.String
 import IOHK.Cicero.API.Run
 import Options.Applicative hiding (empty)
 import Options.Applicative.Help.Pretty
-import Servant.API.BasicAuth
 import Servant.Client.Core.BaseUrl
 
 import Parse
 
-type EnvUsername = String
-type EnvPassword = String
-
 data Args = Args
   { ciceroURL :: !BaseUrl
-  , ciceroAuth :: !(Maybe BasicAuthData)
+  , netrcFile :: !(Maybe FilePath)
   , runId :: !(Maybe RunID)
   , allowArtifacts :: !AllowArtifacts
   , debug :: !Bool
@@ -31,23 +26,8 @@ baseUrlReader = do
       Nothing -> readerError $ "exception parsing '" ++ urlStr ++ "' as a URL: " ++ displayException e
     Right b -> pure b
 
-basicAuthParser :: Maybe EnvUsername -> Maybe EnvPassword -> Parser BasicAuthData
-basicAuthParser envUsername envPassword = BasicAuthData
-  <$> option str
-        ( long "user"
-       <> metavar "USER"
-       <> help "User name for BASIC authentication with cicero server (default $CICERO_USER)"
-       <> maybe mempty (value . fromString) envUsername
-        )
-  <*> option str
-        ( long "password"
-       <> metavar "PASS"
-       <> help "Password for BASIC authentication with cicero server (default $CICERO_PASS)"
-       <> maybe mempty (value . fromString) envPassword
-        )
-
-argsParser :: Maybe EnvUsername -> Maybe EnvPassword -> Parser Args
-argsParser envUsername envPassword = Args
+argsParser :: Parser Args
+argsParser = Args
   <$> option baseUrlReader
         ( long "cicero-url"
        <> metavar "CICERO_URL"
@@ -55,7 +35,11 @@ argsParser envUsername envPassword = Args
        <> showDefaultWith showBaseUrl
        <> (value $ BaseUrl Http "localhost" 8080 "")
         )
-  <*> optional (basicAuthParser envUsername envPassword)
+  <*> optional (strOption
+        ( long "netrc-file"
+       <> metavar "NETRC"
+       <> help "the path to a netrc(5) file for credentials"
+        ))
   <*> optional (option (maybeReader runIdFromString)
         ( long "run-id"
        <> metavar "RUN_ID"
@@ -70,8 +54,8 @@ argsParser envUsername envPassword = Args
        <> help "Print results to stderr instead of posting to Cicero"
         )
 
-argsInfo :: Maybe EnvUsername -> Maybe EnvPassword -> ParserInfo Args
-argsInfo envUsername envPassword = info (argsParser envUsername envPassword <**> helper)
+argsInfo :: ParserInfo Args
+argsInfo = info (argsParser <**> helper)
   ( fullDesc
  <> header "cicero-pipe — Stream facts to Cicero"
  <> (progDescDoc . Just $ vcat

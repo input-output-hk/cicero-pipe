@@ -11,7 +11,7 @@
     flags = {};
     package = {
       specVersion = "3.4";
-      identifier = { name = "cicero-pipe"; version = "1.2.0"; };
+      identifier = { name = "cicero-pipe"; version = "2.0.0"; };
       license = "Apache-2.0";
       copyright = "";
       maintainer = "shea.levy@iohk.io";
@@ -48,6 +48,8 @@
             (hsPkgs."servant-client-core" or (errorHandler.buildDepError "servant-client-core"))
             (hsPkgs."time" or (errorHandler.buildDepError "time"))
             (hsPkgs."uuid" or (errorHandler.buildDepError "uuid"))
+            (hsPkgs."parsec" or (errorHandler.buildDepError "parsec"))
+            (hsPkgs."netrc" or (errorHandler.buildDepError "netrc"))
             ];
           buildable = true;
           modules = [ "Args" "Parse" "Post" ];

@@ -44,7 +44,7 @@
         "vector".flags.unsafechecks = false;
         "socks".revision = (((hackage."socks")."0.6.1").revisions).default;
         "http-types".revision = (((hackage."http-types")."0.12.3").revisions).default;
-        "some".revision = (((hackage."some")."1.0.4").revisions).default;
+        "some".revision = (((hackage."some")."1.0.4.1").revisions).default;
         "some".flags.newtype-unsafe = true;
         "comonad".revision = (((hackage."comonad")."5.0.8").revisions).default;
         "comonad".flags.containers = true;
@@ -66,6 +66,7 @@
         "Cabal".revision = (((hackage."Cabal")."3.6.3.0").revisions).default;
         "sop-core".revision = (((hackage."sop-core")."0.5.0.2").revisions).default;
         "assoc".revision = (((hackage."assoc")."1.0.2").revisions).default;
+        "cicero-api".revision = (((hackage."cicero-api")."0.1.1.3").revisions).default;
         "data-fix".revision = (((hackage."data-fix")."0.3.2").revisions).default;
         "tls".revision = (((hackage."tls")."1.6.0").revisions).default;
         "tls".flags.network = true;
@@ -75,7 +76,7 @@
         "basement".revision = (((hackage."basement")."0.0.15").revisions).default;
         "mtl".revision = (((hackage."mtl")."2.2.2").revisions).default;
         "OneTuple".revision = (((hackage."OneTuple")."0.3.1").revisions).default;
-        "mime-types".revision = (((hackage."mime-types")."0.1.0.9").revisions).default;
+        "mime-types".revision = (((hackage."mime-types")."0.1.1.0").revisions).default;
         "parsec".revision = (((hackage."parsec")."3.1.15.0").revisions).default;
         "bytestring".revision = (((hackage."bytestring")."0.11.3.1").revisions).default;
         "attoparsec-iso8601".revision = (((hackage."attoparsec-iso8601")."1.0.2.1").revisions).default;
@@ -100,7 +101,7 @@
         "attoparsec".flags.developer = false;
         "singleton-bool".revision = (((hackage."singleton-bool")."0.1.6").revisions).default;
         "th-compat".revision = (((hackage."th-compat")."0.1.4").revisions).default;
-        "memory".revision = (((hackage."memory")."0.17.0").revisions).default;
+        "memory".revision = (((hackage."memory")."0.18.0").revisions).default;
         "memory".flags.support_deepseq = true;
         "memory".flags.support_bytestring = true;
         "filepath".revision = (((hackage."filepath")."1.4.2.2").revisions).default;
@@ -145,7 +146,7 @@
         "text-short".revision = (((hackage."text-short")."0.1.5").revisions).default;
         "text-short".flags.asserts = false;
         "servant".revision = (((hackage."servant")."0.19").revisions).default;
-        "bifunctors".revision = (((hackage."bifunctors")."5.5.12").revisions).default;
+        "bifunctors".revision = (((hackage."bifunctors")."5.5.13").revisions).default;
         "bifunctors".flags.tagged = true;
         "bifunctors".flags.semigroups = true;
         "kan-extensions".revision = (((hackage."kan-extensions")."5.2.5").revisions).default;
@@ -164,7 +165,7 @@
         "transformers-base".revision = (((hackage."transformers-base")."0.4.6").revisions).default;
         "transformers-base".flags.orphaninstances = true;
         "data-default-class".revision = (((hackage."data-default-class")."0.1.2.0").revisions).default;
-        "th-abstraction".revision = (((hackage."th-abstraction")."0.4.4.0").revisions).default;
+        "th-abstraction".revision = (((hackage."th-abstraction")."0.4.5.0").revisions).default;
         "semigroupoids".revision = (((hackage."semigroupoids")."5.3.7").revisions).default;
         "semigroupoids".flags.tagged = true;
         "semigroupoids".flags.containers = true;
@@ -193,6 +194,8 @@
         "semialign".flags.semigroupoids = true;
         "transformers".revision = (((hackage."transformers")."0.5.6.2").revisions).default;
         "template-haskell".revision = (((hackage."template-haskell")."2.18.0.0").revisions).default;
+        "netrc".revision = (((hackage."netrc")."0.2.0.0").revisions).default;
+        "netrc".flags.bytestring_has_builder = true;
         "witherable".revision = (((hackage."witherable")."0.4.2").revisions).default;
         "deepseq".revision = (((hackage."deepseq")."1.4.6.1").revisions).default;
         "unix".revision = (((hackage."unix")."2.7.2.2").revisions).default;
@@ -268,20 +271,10 @@
         };
       };
   extras = hackage:
-    {
-      packages = {
-        cicero-api = ./.plan.nix/cicero-api.nix;
-        cicero-pipe = ./.plan.nix/cicero-pipe.nix;
-        };
-      };
+    { packages = { cicero-pipe = ./.plan.nix/cicero-pipe.nix; }; };
   modules = [
     ({ lib, ... }:
-      {
-        packages = {
-          "cicero-api" = { flags = {}; };
-          "cicero-pipe" = { flags = {}; };
-          };
-        })
+      { packages = { "cicero-pipe" = { flags = {}; }; }; })
     ({ lib, ... }:
       {
         packages = {
@@ -416,6 +409,7 @@
           "optparse-applicative".components.library.planned = lib.mkOverride 900 true;
           "aeson".components.library.planned = lib.mkOverride 900 true;
           "x509-system".components.library.planned = lib.mkOverride 900 true;
+          "netrc".components.library.planned = lib.mkOverride 900 true;
           "hourglass".components.library.planned = lib.mkOverride 900 true;
           "base-compat".components.library.planned = lib.mkOverride 900 true;
           "base64-bytestring".components.library.planned = lib.mkOverride 900 true;
