@@ -11,6 +11,7 @@ import Servant.Client hiding (manager)
 import Servant.Client.Core.BasicAuth
 import Servant.API.BasicAuth
 import System.IO
+import System.IO.Error
 import Text.Parsec.ByteString
 import Network.NetRc
 import Data.Monoid
@@ -29,11 +30,14 @@ main = do
       manager <- newTlsManagerWith $
         tlsManagerSettings { managerResponseTimeout = responseTimeoutNone }
       auth <- case args.netrcFile of
-        Just p -> parseFromFile netRcParsec p >>= \case
+        Just p -> tryIOError (parseFromFile netRcParsec p) >>= \case
           Left e -> do
+            hPutStrLn stderr $ "warning: IO error when parsing netrc file " ++ (show e)
+            pure Nothing
+          Right (Left e) -> do
             hPutStrLn stderr $ "warning: failed to parse netrc file " ++ (show e)
             pure Nothing
-          Right netrc -> do
+          Right (Right netrc) -> do
             let urlbs = BS8.pack args.ciceroURL.baseUrlHost
                 credsIfMatch :: NetRcHost -> First (ByteString, ByteString)
                 credsIfMatch netrcHost = First $ if netrcHost.nrhName == urlbs || BS.null netrcHost.nrhName
