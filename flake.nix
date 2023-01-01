@@ -99,8 +99,8 @@
       hydraJobs = self.packages.${evalSystem};
     });
   in flake inputs // {
-    hydraJobs = { nixpkgs ? inputs.nixpkgs, flake-utils ? inputs.flake-utils, haskell-nix ? inputs.haskell-nix }@overrides: let
-      flake' = flake (inputs // overrides // { self = flake'; });
+    hydraJobs = let
+      flake' = flake (inputs // { self = flake'; });
       evalSystem = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${evalSystem};
     in flake'.hydraJobs // {
